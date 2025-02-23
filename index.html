@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brotherhood Store</title>
+    <style>
+        body {
+            background: #222;
+            color: white;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            position: relative;
+        }
+        .header {
+            font-size: 32px;
+            font-weight: bold;
+            padding: 20px;
+            position: relative;
+        }
+        .search-bar {
+            margin-bottom: 20px;
+            padding: 10px;
+            font-size: 18px;
+            border-radius: 10px;
+            border: none;
+            width: 50%;
+        }
+        .product-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .product {
+            margin: 20px;
+            padding: 20px;
+            background: #333;
+            border-radius: 10px;
+            border: 3px solid;
+            animation: rgb-border 3s infinite alternate;
+        }
+        img {
+            width: 200px;
+            height: auto;
+            border-radius: 10px;
+        }
+        .order-btn, .login-btn, .add-product-btn {
+            background: blue;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+        }
+        .order-btn:hover, .login-btn:hover, .add-product-btn:hover {
+            background: darkblue;
+        }
+        .footer {
+            margin-top: 50px;
+            padding: 20px;
+            background: black;
+        }
+        @keyframes rgb-border {
+            0% { border-color: red; }
+            50% { border-color: blue; }
+            100% { border-color: green; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">Brotherhood Store <button class="login-btn" onclick="login()">Login</button></div>
+    <input type="text" class="search-bar" id="search" placeholder="Search Products..." onkeyup="searchProducts()">
+    <div id="productContainer" class="product-container"></div>
+    
+    <div id="orderForm" style="display:none;">
+        <h2>Order Now</h2>
+        <form onsubmit="submitOrder(event)">
+            <input type="text" id="name" placeholder="Your Name" required><br>
+            <input type="text" id="address" placeholder="Your Address" required><br>
+            <input type="text" id="phone" placeholder="Phone Number" required><br>
+            <input type="text" id="city" placeholder="City" required><br>
+            <button type="submit">Submit Order</button>
+        </form>
+    </div>
+    
+    <div id="addProductForm" style="display:none;">
+        <h2>Add Product</h2>
+        <input type="text" id="productName" placeholder="Product Name" required><br>
+        <input type="file" id="productImage" required><br>
+        <button onclick="addProduct()">Publish</button>
+    </div>
+    
+    <div class="footer">
+        <p>Contact: 0370 8401223</p>
+    </div>
+    
+    <script>
+        let loggedInEmail = "";
+        let products = JSON.parse(localStorage.getItem("products")) || [
+            {name: "Luxury Watch", img: "https://i.postimg.cc/Z53TyX6R/DALL-E-2025-02-21-22-03-19-A-stylish-wristwatch.webp"},
+            {name: "Classic Silver Watch", img: "https://i.postimg.cc/g2vxPxSN/9dc2ed10-9185-4921-9a75-09b2eae80d1b.jpg"}
+        ];
+
+        function displayProducts() {
+            const container = document.getElementById("productContainer");
+            container.innerHTML = "";
+            products.forEach((product) => {
+                container.innerHTML += `
+                    <div class="product">
+                        <img src="${product.img}" alt="${product.name}">
+                        <h2>${product.name}</h2>
+                        <button class="order-btn" onclick="showOrderForm('${product.name}')">Order Now</button>
+                    </div>`;
+            });
+        }
+        displayProducts();
+
+        function showOrderForm(product) {
+            document.getElementById('orderForm').style.display = 'block';
+            document.getElementById('orderForm').setAttribute('data-product', product);
+        }
+
+        function submitOrder(event) {
+            event.preventDefault();
+            let product = document.getElementById('orderForm').getAttribute('data-product');
+            let name = document.getElementById('name').value;
+            let address = document.getElementById('address').value;
+            let phone = document.getElementById('phone').value;
+            let city = document.getElementById('city').value;
+            
+            let mailtoLink = `mailto:pp4096703@gmail.com?subject=New Order&body=
+            Product: ${product}%0D%0A
+            Name: ${name}%0D%0A
+            Address: ${address}%0D%0A
+            Phone: ${phone}%0D%0A
+            City: ${city}`;
+            
+            window.location.href = mailtoLink;
+        }
+        
+        function login() {
+            let email = prompt("Enter your email:");
+            loggedInEmail = email;
+            if (email === "pp4096703@gmail.com") {
+                document.body.innerHTML += '<button class="add-product-btn" onclick="showAddProductForm()">+</button>';
+            }
+        }
+        
+        function showAddProductForm() {
+            document.getElementById('addProductForm').style.display = 'block';
+        }
+        
+        function addProduct() {
+            let name = document.getElementById('productName').value;
+            let img = URL.createObjectURL(document.getElementById('productImage').files[0]);
+            products.push({ name, img });
+            localStorage.setItem("products", JSON.stringify(products));
+            displayProducts();
+            document.getElementById('addProductForm').style.display = 'none';
+        }
+        
+        function searchProducts() {
+            let query = document.getElementById('search').value.toLowerCase();
+            let filtered = products.filter(p => p.name.toLowerCase().includes(query));
+            const container = document.getElementById("productContainer");
+            container.innerHTML = "";
+            filtered.forEach(product => {
+                container.innerHTML += `
+                    <div class="product">
+                        <img src="${product.img}" alt="${product.name}">
+                        <h2>${product.name}</h2>
+                        <button class="order-btn" onclick="showOrderForm('${product.name}')">Order Now</button>
+                    </div>`;
+            });
+        }
+    </script>
+</body>
+</html>
